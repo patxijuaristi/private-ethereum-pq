@@ -1,0 +1,68 @@
+version: '3.7'
+
+services:
+  geth-pq-bootnode:
+    hostname: geth-pq-bootnode
+    container_name: geth-pq-bootnode
+    env_file:
+      - .env
+    image: geth-client
+    build:
+      context: .
+      args:
+        - ACCOUNT_PASSWORD=${ACCOUNT_PASSWORD}
+    command:
+      --nodekeyhex="a7fea58100e447f81caecd7f45f10993a04f649b8f49670cd612b1d941e6bc29"
+      --nodiscover
+      --ipcdisable
+      --networkid=${NETWORK_ID}
+      --netrestrict="172.16.254.0/28"
+    networks:
+      priv-pq-eth-net:
+
+  geth-pq-rpc-endpoint:
+    hostname: geth-pq-rpc-endpoint
+    container_name: geth-pq-rpc-endpoint
+    env_file:
+      - .env
+    image: geth-client
+    depends_on:
+      - geth-pq-bootnode    
+    command:
+      --bootnodes="enode://c79d75bb14a3ff5edd701fe5c775c3b6e9ac278033014ae8468e4c4de7c6a6921d7867ea64acf4141e0b754db4757a9d454d466974f259934db2d9e36ef52859@geth-pq-bootnode:30303"
+      --allow-insecure-unlock
+      --http
+      --http.addr="0.0.0.0"
+      --http.api="eth,web3,net,admin,personal"
+      --http.corsdomain="*"
+      --networkid=${NETWORK_ID}
+      --netrestrict="172.16.254.0/28"
+    ports:
+      - "8545:8545"
+    networks:
+      priv-pq-eth-net:
+
+  geth-pq-miner:
+    hostname: geth-pq-miner
+    container_name: geth-pq-miner
+    env_file:
+      - .env
+    image: geth-client
+    depends_on:
+      - geth-pq-bootnode
+    command:
+      --bootnodes="enode://c79d75bb14a3ff5edd701fe5c775c3b6e9ac278033014ae8468e4c4de7c6a6921d7867ea64acf4141e0b754db4757a9d454d466974f259934db2d9e36ef52859@geth-pq-bootnode:30303"
+      --mine
+      --miner.threads=1
+      --miner.etherbase=0x9a63c4cc6ce101b97ec43f61d442ae5257636b4c
+      --networkid=${NETWORK_ID}
+      --netrestrict="172.16.254.0/28"
+    networks:
+      priv-pq-eth-net:
+
+networks:
+  priv-pq-eth-net:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.16.254.0/28
