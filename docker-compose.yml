@@ -35,6 +35,7 @@ services:
       --http.addr="0.0.0.0"
       --http.api="eth,web3,net,admin,personal"
       --http.corsdomain="*"
+      --rpc.enabledeprecatedpersonal
       --networkid=${NETWORK_ID}
       --netrestrict="172.16.254.0/28"
     ports:
@@ -54,7 +55,7 @@ services:
       --bootnodes="enode://c79d75bb14a3ff5edd701fe5c775c3b6e9ac278033014ae8468e4c4de7c6a6921d7867ea64acf4141e0b754db4757a9d454d466974f259934db2d9e36ef52859@geth-pq-bootnode:30303"
       --mine
       --miner.threads=1
-      --miner.etherbase=0x9a63c4cc6ce101b97ec43f61d442ae5257636b4c
+      --miner.etherbase=${MINER_ETHERBASE}
       --networkid=${NETWORK_ID}
       --netrestrict="172.16.254.0/28"
     networks:
