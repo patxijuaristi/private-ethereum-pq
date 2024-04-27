@@ -48,6 +48,8 @@ func (a Algorithm) String() string {
 
 var actualAlgorithm = "SPHINCS"
 
+var contGenerateKey = 0
+
 // SignatureLength indicates the byte length required to carry a signature with recovery id.
 const SignatureLength = 64 + 1 // 64 bytes ECDSA signature + 1 byte recovery id
 
@@ -257,6 +259,10 @@ func SaveECDSA(file string, key *ecdsa.PrivateKey) error {
 
 // GenerateKey generates a new private key.
 func GenerateKey() (*ecdsa.PrivateKey, error) {
+	contGenerateKey = contGenerateKey + 1
+	print("\n===================================\n")
+	print(" - GenerateKey n =", contGenerateKey)
+	print("\n===================================\n")
 	switch actualAlgorithm {
 	case "ECDSA":
 		return crypto_ecdsa.GenerateKey()

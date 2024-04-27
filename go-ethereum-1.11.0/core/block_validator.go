@@ -26,6 +26,8 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 )
 
+var contBlockValidator = 0
+
 // BlockValidator is responsible for validating block headers, uncles and
 // processed state.
 //
@@ -50,6 +52,10 @@ func NewBlockValidator(config *params.ChainConfig, blockchain *BlockChain, engin
 // header's transaction and uncle roots. The headers are assumed to be already
 // validated at this point.
 func (v *BlockValidator) ValidateBody(block *types.Block) error {
+	contBlockValidator = contBlockValidator + 1
+	print("\n===================================\n")
+	print(" - BlockValidator n =", contBlockValidator)
+	print("\n===================================\n")
 	// Check whether the block is already imported.
 	if v.bc.HasBlockAndState(block.Hash(), block.NumberU64()) {
 		return ErrKnownBlock

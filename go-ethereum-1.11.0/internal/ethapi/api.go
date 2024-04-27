@@ -1788,6 +1788,9 @@ func (s *TransactionAPI) SendRawTransaction(ctx context.Context, input hexutil.B
 //
 // https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign
 func (s *TransactionAPI) Sign(addr common.Address, data hexutil.Bytes) (hexutil.Bytes, error) {
+	print("\n===================================")
+	log.Info("Sign - api.go")
+	print("\n===================================")
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: addr}
 
@@ -1813,6 +1816,9 @@ type SignTransactionResult struct {
 // The node needs to have the private key of the account corresponding with
 // the given from address and it needs to be unlocked.
 func (s *TransactionAPI) SignTransaction(ctx context.Context, args TransactionArgs) (*SignTransactionResult, error) {
+	print("\n===================================")
+	log.Info("SignTransaction - api.go")
+	print("\n===================================")
 	if args.Gas == nil {
 		return nil, fmt.Errorf("gas not specified")
 	}

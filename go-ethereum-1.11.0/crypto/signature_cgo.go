@@ -27,6 +27,11 @@ import (
 	crypto_sphincs "github.com/ethereum/go-ethereum/crypto_modular/sphincs"
 )
 
+var (
+	contVerifySignature = 0
+	contSign            = 0
+)
+
 // Ecrecover returns the uncompressed public key that created the given signature.
 func Ecrecover(hash, sig []byte) ([]byte, error) {
 	switch actualAlgorithm {
@@ -60,6 +65,10 @@ func SigToPub(hash, sig []byte) (*ecdsa.PublicKey, error) {
 //
 // The produced signature is in the [R || S || V] format where V is 0 or 1.
 func Sign(digestHash []byte, prv *ecdsa.PrivateKey) (sig []byte, err error) {
+	contSign = contSign + 1
+	print("\n===================================\n")
+	print(" - Sign n = ", contSign)
+	print("\n===================================\n")
 	switch actualAlgorithm {
 	case "ECDSA":
 		return crypto_ecdsa.Sign(digestHash, prv)
@@ -74,6 +83,10 @@ func Sign(digestHash []byte, prv *ecdsa.PrivateKey) (sig []byte, err error) {
 // The public key should be in compressed (33 bytes) or uncompressed (65 bytes) format.
 // The signature should have the 64 byte [R || S] format.
 func VerifySignature(pubkey, digestHash, signature []byte) bool {
+	contVerifySignature = contVerifySignature + 1
+	print("\n===================================\n")
+	print(" - VerifySignature n = ", contVerifySignature)
+	print("\n===================================\n")
 	switch actualAlgorithm {
 	case "ECDSA":
 		return crypto_ecdsa.VerifySignature(pubkey, digestHash, signature)
