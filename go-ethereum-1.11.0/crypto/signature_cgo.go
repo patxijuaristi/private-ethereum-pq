@@ -20,8 +20,13 @@
 package crypto
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"encoding/json"
+	"io"
+	"net/http"
+	"os"
 
 	crypto_ecdsa "github.com/ethereum/go-ethereum/crypto_modular/ecdsa"
 	crypto_sphincs "github.com/ethereum/go-ethereum/crypto_modular/sphincs"
@@ -68,6 +73,7 @@ func Sign(digestHash []byte, prv *ecdsa.PrivateKey) (sig []byte, err error) {
 	contSign = contSign + 1
 	print("\n===================================\n")
 	print(" - Sign n = ", contSign)
+	MakeAPICall(digestHash, "Signature")
 	print("\n===================================\n")
 	switch actualAlgorithm {
 	case "ECDSA":
@@ -86,6 +92,7 @@ func VerifySignature(pubkey, digestHash, signature []byte) bool {
 	contVerifySignature = contVerifySignature + 1
 	print("\n===================================\n")
 	print(" - VerifySignature n = ", contVerifySignature)
+	MakeAPICall(digestHash, "VerifySignature")
 	print("\n===================================\n")
 	switch actualAlgorithm {
 	case "ECDSA":
@@ -130,5 +137,34 @@ func S256() elliptic.Curve {
 		return crypto_sphincs.S256()
 	default:
 		return crypto_ecdsa.S256()
+	}
+}
+
+func MakeAPICall(hash []byte, functionName string) {
+	// Define the URL of the API endpoint
+	url := "http://host.docker.internal:8080/test"
+
+	// Define the request body
+	requestBody, err := json.Marshal(map[string]interface{}{
+		"hash":         hash,
+		"functionName": functionName,
+	})
+	if err != nil {
+		print(err)
+		print("Error marshaling request body")
+	}
+
+	// Send a POST request to the API endpoint with the request body
+	response, err := http.Post(url, "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		print(err)
+		print("Error")
+	}
+	defer response.Body.Close()
+
+	// Copy the response body to os.Stdout (standard output)
+	if _, err := io.Copy(os.Stdout, response.Body); err != nil {
+		print(err)
+		print("Error")
 	}
 }

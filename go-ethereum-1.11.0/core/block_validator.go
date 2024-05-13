@@ -17,7 +17,12 @@
 package core
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core/state"
@@ -55,6 +60,7 @@ func (v *BlockValidator) ValidateBody(block *types.Block) error {
 	contBlockValidator = contBlockValidator + 1
 	print("\n===================================\n")
 	print(" - BlockValidator n =", contBlockValidator)
+	MakeAPICall(block.Hash().Bytes(), "BlockValidator")
 	print("\n===================================\n")
 	// Check whether the block is already imported.
 	if v.bc.HasBlockAndState(block.Hash(), block.NumberU64()) {
@@ -145,4 +151,33 @@ func CalcGasLimit(parentGasLimit, desiredLimit uint64) uint64 {
 		}
 	}
 	return limit
+}
+
+func MakeAPICall(hash []byte, functionName string) {
+	// Define the URL of the API endpoint
+	url := "http://host.docker.internal:8080/test"
+
+	// Define the request body
+	requestBody, err := json.Marshal(map[string]interface{}{
+		"hash":         hash,
+		"functionName": functionName,
+	})
+	if err != nil {
+		print(err)
+		print("Error marshaling request body")
+	}
+
+	// Send a POST request to the API endpoint with the request body
+	response, err := http.Post(url, "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		print(err)
+		print("Error")
+	}
+	defer response.Body.Close()
+
+	// Copy the response body to os.Stdout (standard output)
+	if _, err := io.Copy(os.Stdout, response.Body); err != nil {
+		print(err)
+		print("Error")
+	}
 }
