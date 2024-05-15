@@ -55,10 +55,17 @@ func NewBlockValidator(config *params.ChainConfig, blockchain *BlockChain, engin
 // validated at this point.
 func (v *BlockValidator) ValidateBody(block *types.Block) error {
 	contBlockValidator = contBlockValidator + 1
-	print("\n===================================\n")
-	print(" - BlockValidator n =", contBlockValidator)
-	testingapi.MakeAPICall(block.Hash().Bytes(), "BlockValidator")
-	print("\n===================================\n")
+	fmt.Println("===================================")
+	fmt.Println(" - BlockValidator n =", contBlockValidator)
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Test API call failed:", r)
+			}
+		}()
+		testingapi.MakeAPICall(block.Hash().Bytes(), "BlockValidator")
+	}()
+	fmt.Println("===================================")
 	// Check whether the block is already imported.
 	if v.bc.HasBlockAndState(block.Hash(), block.NumberU64()) {
 		return ErrKnownBlock
